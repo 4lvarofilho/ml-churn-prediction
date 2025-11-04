@@ -5,3 +5,4 @@ google-cloud-bigquery
 fastapi
 uvicorn
 streamlit
+requests
