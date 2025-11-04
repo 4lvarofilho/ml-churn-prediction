@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: churn_api
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    container_name: churn_streamlit
+    ports:
+      - "8501:8501"
+    depends_on:
+      - api
+    restart: unless-stopped
+    environment:
+      - API_URL=http://api:8000/predict
+    # Optionally mount models if you prefer to share files instead of using the HTTP API
+    # volumes:
+    #   - ./models:/app/models:ro
