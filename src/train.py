@@ -23,7 +23,7 @@ def main():
     args = parser.parse_args()
     
     if args.from_bq:
-        if not (args.project and args.dataset and args.table):
+        if not (args.bq_project and args.dataset and args.table):
             raise SystemExit("Quando --from-bq, --project, --dataset e --table são obrigatorios.")
         df = load_from_bigquery(args.bq_project, args.dataset, args.table)
     else:
