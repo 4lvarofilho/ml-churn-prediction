@@ -1,7 +1,8 @@
+import os
 import streamlit as st
 import requests
 
-API_URL = st.secrets.get("API_URL", "http://api:8000/predict")
+API_URL = os.getenv("API_URL", "http://api:8000/predict")
 
 st.set_page_config(page_title="Churn predictor", layout="centered")
 
@@ -46,7 +47,8 @@ if submitted:
     }
 
     try:
-        res = requests.post(API_URL, json=payload, timeout=10)
+        # the API expects a body like {"data": { ... }}
+        res = requests.post(API_URL, json={"data": payload}, timeout=10)
         res.raise_for_status()
         data = res.json()
         st.subheader("Resultado")
