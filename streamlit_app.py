@@ -9,6 +9,17 @@ st.set_page_config(page_title="Churn predictor", layout="centered")
 st.title("Previsão de Churn — Demo")
 st.write("Preencha os campos do cliente e clique em Prever. O app envia os dados para a API e mostra a probabilidade de churn.")
 
+import os
+import streamlit as st
+import requests
+
+API_URL = os.getenv("API_URL", "http://api:8000/predict")
+
+st.set_page_config(page_title="Churn predictor", layout="centered")
+
+st.title("Previsão de Churn — Demo")
+st.write("Preencha os campos do cliente e clique em Prever. O app envia os dados para a API e mostra a probabilidade de churn.")
+
 with st.form("client_form"):
     col1, col2 = st.columns(2)
     with col1:
@@ -42,21 +53,29 @@ if submitted:
         "PaperlessBilling": paperless,
         "PaymentMethod": payment,
         "MonthlyCharges": float(monthly),
-        # Optional fields commonly present in dataset
         "TotalCharges": None
     }
 
     try:
-        # the API expects a body like {"data": { ... }}
         res = requests.post(API_URL, json={"data": payload}, timeout=10)
-        res.raise_for_status()
-        data = res.json()
-        st.subheader("Resultado")
-        st.write(f"Probabilidade de churn: {data.get('probability'):.3f}")
-        st.write(f"Predição (0 = não, 1 = sim): {data.get('prediction')}" )
-        st.json(data)
-    except Exception as e:
+        try:
+            res.raise_for_status()
+        except requests.exceptions.HTTPError:
+            try:
+                err = res.json()
+            except Exception:
+                err = res.text
+            st.error(f"API retornou erro {res.status_code}: {err}")
+        else:
+            data = res.json()
+            st.subheader("Resultado")
+            st.write(f"Probabilidade de churn: {data.get('probability'):.3f}")
+            st.write(f"Predição (0 = não, 1 = sim): {data.get('prediction')}")
+            st.json(data)
+    except requests.exceptions.RequestException as e:
         st.error(f"Falha ao chamar a API: {e}")
+    except Exception as e:
+        st.error(f"Erro inesperado: {e}")
 
 st.markdown("---")
 st.markdown("Se preferir, edite o arquivo `streamlit_app.py` para incluir mais campos ou ajustar o endpoint da API.")
