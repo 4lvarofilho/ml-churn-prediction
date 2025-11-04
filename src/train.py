@@ -4,9 +4,9 @@ import pandas as pd
 from pathlib import Path
 from sklearn.model_selection import train_test_split
 
-from src.data import load_local_csv, load_from_bigquery
-from src.features import featurize
-from src.model import train_model, evaluate_model, save_model
+from data import load_from_bigquery, load_local_csv
+from features import featurize
+from model import train_model, evaluate_model, save_model
 
 MODEL_DIR = Path("models")
 MODEL_DIR.mkdir(exist_ok=True)
